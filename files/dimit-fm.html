@@ -126,10 +126,10 @@
 
 <script>
 // === настройки для API ===
-const GITHUB_OWNER = 'pear-devs';  // username
-const GITHUB_REPO  = 'pear-desktop'; // repo
-const GITHUB_BRANCH = 'master';        // ветка
-const FILES_PATH   = 'src';        // папка
+const GITHUB_OWNER = 'St-Dct';  // username
+const GITHUB_REPO  = 'dimit-webcard'; // repo
+const GITHUB_BRANCH = 'main';        // ветка
+const FILES_PATH   = 'files';        // папка
 
 const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILES_PATH}?ref=${GITHUB_BRANCH}`;
 
@@ -194,4 +194,5 @@ fetch(apiUrl)
 </script>
 
 </body>
+
 </html>
