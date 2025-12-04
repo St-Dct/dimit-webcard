@@ -1,0 +1,198 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>~*~ DIMIT-fm ~*~ repo/files/</title>
+<style type="text/css">
+    body {
+        background-color: #000033;
+        background-image: url('https://i.ibb.co/MDc5bTtD/mspaint-m-IRNsge-VGl.png');
+        color: #FFFF00;
+        font-family: "Verdana", "Arial", sans-serif;
+        font-size: 12px;
+        margin: 0;
+    }
+    a { color: #00FF00; text-decoration: none; }
+    a:hover { color: #FFFFFF; background-color: #0000FF; padding: 2px; }
+
+    .file-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: "Courier New", monospace;
+        background-color: #000000;
+    }
+    .file-table th {
+        background-color: #0000AA;
+        color: #FFFF00;
+        border: 1px solid #FFFFFF;
+        padding: 8px;
+        text-align: left;
+    }
+    .file-table td {
+        border: 1px solid #555555;
+        padding: 6px;
+        color: #CCCCCC;
+    }
+    .file-icon {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+    .loading {
+        text-align: center;
+        color: #00FF00;
+        font-weight: bold;
+    }
+    .error {
+        color: #FF0000;
+        background: #330000;
+        padding: 10px;
+        border: 1px solid #FF0000;
+    }
+    .menu-link {
+        display: block;
+        background-color: #333333;
+        border: 2px outset #CCCCCC;
+        padding: 5px;
+        margin-bottom: 5px;
+        color: #FFFFFF;
+        text-align: center;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    .menu-link:active { border-style: inset; }
+</style>
+</head>
+<body text="#FFFF00" link="#00FF00" vlink="#FF00FF" alink="#FFFFFF">
+<center>
+    <table width="800" border="1" bordercolor="#00FF00" cellspacing="0" cellpadding="0" bgcolor="#000000">
+
+
+        <!-- Шапка -->
+        <tr>
+            <td colspan="2" height="100" background="https://i.imgur.com/MO42ud1.gif" align="center">
+                 <font size="6" color="lime" face="Comic Sans MS"><b><i>.: MEGA ФАЙЛОВЫЙ МЕНЕДЖЕР :.</i></b></font>
+            </td>
+        </tr>
+
+
+        <tr valign="top">
+            <!-- menu -->
+            <td width="200" bgcolor="#000022">
+                <br>
+                <div style="padding: 5px;">
+                    <a href="index.html" class="menu-link"><< НА ГЛАВНУЮ</a>
+                    <br>
+                    <font size="2" color="white"><center>Статус:</center></font>
+                    <div id="status" class="loading">сканирование repo</div>
+                </div>
+            </td>
+
+            <!-- tablitsa -->
+            <td width="600" bgcolor="#000000" style="padding: 15px;">
+
+                <p>
+                    <font face="Courier New" size="3" color="#00FF00">
+                    Текущая папка: <b>Z:\repo\SCREAM\Files\</b>
+                    </font>
+                </p>
+
+                <table class="file-table" id="fileTable">
+                    <thead>
+                        <tr>
+                            <th width="40%">Имя файла</th>
+                            <th width="15%">Размер</th>
+                            <th width="45%">Дата | Тип</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileList">
+                    </tbody>
+                </table>
+
+                <br>
+                <center id="footerStats">
+                    <font size="1" color="gray">Файлов: 0 | Общий размер: 0 КБ</font>
+                </center>
+
+            </td>
+        </tr>
+
+        <!-- авторские бомбомёты -->
+        <tr>
+            <td colspan="2" bgcolor="#333333" align="center">
+                <font size="1" color="#CCCCCC">dimit © 2025-2026 | Благодоря GitHub API</font>
+            </td>
+        </tr>
+    </table>
+</center>
+
+<script>
+// === настройки для API ===
+const GITHUB_OWNER = 'St-Dct';  // username
+const GITHUB_REPO  = 'dimit-webcard'; // repo
+const GITHUB_BRANCH = 'main';        // ветка
+const FILES_PATH   = 'files';        // папка
+
+const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILES_PATH}?ref=${GITHUB_BRANCH}`;
+
+// размер
+function formatSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KiB', 'MiB', 'GiB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+// иконочки
+function getFileIcon(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const icons = {
+        'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🎬',
+        'mp3': '🎵', 'wav': '🎵', 'mid': '🎵',
+        'zip': '💾', 'rar': '💾', '7z': '💾',
+        'pdf': '📄', 'doc': '📝', 'txt': '📄',
+        'exe': '⚠️', 'msi': '⚠️'
+    };
+    return icons[ext] || '📄';
+}
+// таблица
+function renderFiles(files) {
+    const tbody = document.getElementById('fileList');
+    const status = document.getElementById('status');
+    const footer = document.getElementById('footerStats');
+
+    tbody.innerHTML = '';
+    status.textContent = `Найдено файлов: ${files.length}`;
+
+    let totalSize = 0;
+
+    files.forEach(file => {
+        const row = tbody.insertRow();
+        row.innerHTML = `
+            <td><span class="file-icon">${getFileIcon(file.name)}</span> 
+               <a href="${file.download_url}" target="_blank">${file.name}</a></td>
+            <td>${formatSize(file.size)}</td>
+            <td>${new Date(file.last_modified || Date.now()).toLocaleDateString()} | ${file.name.split('.').pop().toUpperCase()}</td>
+        `;
+        totalSize += file.size;
+    }); 
+    footer.innerHTML = `<font size="1" color="gray">Файлов: ${files.length} | Общий размер: ${formatSize(totalSize)}</font>`;
+}
+// загрузка
+fetch(apiUrl)
+    .then(response => {
+        if (!response.ok) throw new Error('API ошибка: ' + response.status);
+        return response.json();
+    })
+    .then(files => {
+        const fileList = files.filter(item => !item.type || item.type === 'file');
+        renderFiles(fileList);
+    })
+    .catch(error => {
+        console.error('Ошибка:', error);
+        document.getElementById('status').innerHTML = '<span class="error">Ошибка загрузки! ln199 </span>';
+        document.getElementById('fileList').innerHTML = '<tr><td colspan="3" class="error">Директория пуста или ln200 </td></tr>';
+    });
+</script>
+
+</body>
+
+</html>
